@@ -6,9 +6,9 @@ export function createRuntimeProxy({
   workspace = process.env.WORKSPACE_CONTAINER,
   browser = process.env.BROWSER_CONTAINER,
 } = {}) {
-  if (!/^nod-workspace-[a-zA-Z0-9_-]+$/.test(workspace || ''))
+  if (!/^(?:nod-)?workspace-[a-zA-Z0-9_-]+$/.test(workspace || ''))
     throw new Error('A workspace container is required.');
-  if (!/^nod-browser-[a-zA-Z0-9_-]+$/.test(browser || ''))
+  if (!/^(?:nod-)?browser-[a-zA-Z0-9_-]+$/.test(browser || ''))
     throw new Error('A browser container is required.');
   const executions = new Map();
   const denied = (response) => response.writeHead(403).end('Runtime operation refused.');

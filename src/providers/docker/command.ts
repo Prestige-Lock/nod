@@ -312,7 +312,7 @@ export async function runWorkspaceCommand(options: {
   spawn?: WorkspaceCommandLauncher;
   drainTimeoutMs?: number;
 }): Promise<{ stdout: Buffer; stderr: Buffer; exitCode: number }> {
-  if (!/^nod-workspace(?:-[a-zA-Z0-9_-]+)?$/.test(options.container))
+  if (!/^(?:nod-workspace(?:-[a-zA-Z0-9_-]+)?|workspace-[a-zA-Z0-9_-]+)$/.test(options.container))
     throw new Error('WORKSPACE_CONTAINER must identify a Nod workspace.');
   const id = threadIdentity(options.threadId);
   const launch = (workdir: string) => () =>
