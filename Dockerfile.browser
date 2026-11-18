@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=build /out ./
-COPY --chmod=555 src/providers/container-browser/xvfb.sh /usr/local/bin/Xvfb
+COPY src/providers/container-browser/xvfb.sh /usr/local/bin/Xvfb
+RUN chmod 555 /usr/local/bin/Xvfb
 RUN mkdir /data && chown node:node /data && chmod 700 /data
 USER node
 CMD ["node", "/app/worker.mjs"]

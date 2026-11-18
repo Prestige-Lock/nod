@@ -21,6 +21,7 @@ COPY --from=build --chown=node:node /app/src ./src
 COPY --from=build --chown=node:node /app/dist ./dist
 COPY --chown=node:node docs/src/content/docs ./docs/src/content/docs
 COPY --chown=node:node deployment/self-host/healthcheck.mjs ./healthcheck.mjs
+COPY --chown=node:node deployment/self-host/docker-proxy.mjs ./docker-proxy.mjs
 RUN mkdir -p /var/lib/nod/workspaces && chown -R node:node /var/lib/nod
 USER node
 ENV NODE_ENV=production
