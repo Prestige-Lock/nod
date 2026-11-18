@@ -8,7 +8,9 @@ services:
     image: nod-server:${NOD_IMAGE_TAG:-local}
     restart: unless-stopped
     init: true
-    env_file: ${NOD_ENV_FILE:-.env}
+    env_file:
+      - path: ${NOD_ENV_FILE:-.env}
+        required: false
     environment:
       NODE_ENV: production
       NOD_ENVIRONMENT: production
@@ -22,8 +24,6 @@ services:
       DOCKER_HOST: tcp://runtime:2375
       WORKSPACE_CONTAINER: nod-workspace-${COMPOSE_PROJECT_NAME:-nod-server}
       BROWSER_CONTAINER: nod-browser-${COMPOSE_PROJECT_NAME:-nod-server}
-    ports:
-      - '${NOD_BIND_ADDRESS:-127.0.0.1}:${PORT:-4310}:${PORT:-4310}'
     volumes:
       - server-data:/var/lib/nod
       - workspace-data:/var/lib/nod/workspaces
@@ -163,45 +163,6 @@ services:
       timeout: 3s
       retries: 10
 
-  https:
-    image: caddy:2.11.7-alpine@sha256:eb4d35b7452d1ab6171fbdbe8d9275b2301dad6dad92115d91e19fb9b24d510f
-    profiles: [https]
-    restart: unless-stopped
-    entrypoint: /bin/sh
-    command:
-      - -ec
-      - |
-        origin=$${NOD_PUBLIC_URL%/}
-        case "$$origin" in
-          https://*) authority=$${origin#https://}; authority=$${authority%:443} ;;
-          *) echo 'The HTTPS profile requires an https:// origin on port 443.' >&2; exit 1 ;;
-        esac
-        case "$$authority" in
-          ''|*[!a-zA-Z0-9.-]*) echo 'The HTTPS profile requires a DNS or IPv4 host on port 443. Use an existing proxy for other ports or IPv6.' >&2; exit 1 ;;
-        esac
-        export NOD_PUBLIC_URL="$$origin"
-        exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
-    environment:
-      NOD_PUBLIC_URL: ${NOD_PUBLIC_URL:-http://localhost:${PORT:-4310}}
-      PORT: ${PORT:-4310}
-    ports:
-      - '80:80'
-      - '443:443'
-      - '443:443/udp'
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - https-data:/data
-      - https-config:/config
-    networks: [outbound]
-    depends_on:
-      server:
-        condition: service_healthy
-    healthcheck:
-      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:2019/config/']
-      interval: 5s
-      timeout: 3s
-      retries: 6
-
 networks:
   backend:
     internal: true
@@ -217,5 +178,3 @@ volumes:
   workspace-data:
   workspace-tools:
   browser-data:
-  https-data:
-  https-config:
